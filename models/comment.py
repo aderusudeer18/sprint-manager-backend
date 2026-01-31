@@ -1,31 +1,20 @@
-from sqlalchemy import Column, Integer, DateTime, ForeignKey, String
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey,Text
 from sqlalchemy.orm import relationship
-from datetime import datetime,timezone
+from datetime import datetime, timezone
 from database import Base
 
 
+  # make sure Base is imported from your database module
+
 class Comment(Base):
-    
     __tablename__ = "comment"
 
     id = Column(Integer, primary_key=True, index=True)
-
-    task_id = Column(Integer, ForeignKey("task.id"), nullable=False)
+    text = Column(String, nullable=False)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-
-    content = Column(String, nullable=False)
-
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
-    parent_id = Column(Integer, ForeignKey("comment.id"), nullable=True)
+    # Relationship to User
+    author = relationship("User", back_populates="comments")
 
-    # Relationships
-    task = relationship("Task", back_populates="comments")
-    user = relationship("User", back_populates="comments")
-
-    replies = relationship(
-        "Comment",
-        backref="parent",
-        remote_side=[id]
-    )

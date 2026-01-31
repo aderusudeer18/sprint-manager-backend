@@ -20,7 +20,6 @@ TASK_NOT_FOUND = "Task not found"
 @router.post("/")
 def create_task(task: TaskCreate, db: Session = Depends(get_db)):\
 
-    # Find last code
     last_task = db.query(Task).order_by(Task.code.desc()).first()
     new_code = int(last_task.code) + 1 if last_task else 1001
 
@@ -32,7 +31,7 @@ def create_task(task: TaskCreate, db: Session = Depends(get_db)):\
         story_points=task.story_points,
         priority=task.priority,
         user_id=task.user_id,
-        parent_task=task.parent_task,
+        parent_task = task.parent_task if task.parent_task not in [0, "", None] else None,
         sprint_id=task.sprint_id,
         project_id=task.project_id,
         description=task.description,

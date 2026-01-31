@@ -12,19 +12,10 @@ router = APIRouter()
 # CREATE PROJECT
 @router.post("/")
 def create_project(project_data: ProjectCreate, db: Session = Depends(get_db)):
-    # 1. Fetch existing User objects from the DB using the IDs provided
-    # project_data.users is a list of ints like [1, 2, 3]
     users_to_add = db.query(User).filter(User.id.in_(project_data.users)).all()
-
-    # 2. Create the Project instance
     new_project = Project(title=project_data.title, manager_id = project_data.manager_id)
-
-    # 3. Establish the relationship
-    # This automatically creates entries in the 'user_projects' table
     new_project.users = users_to_add
-
     new_project.created_at = datetime.datetime.now(datetime.timezone.utc)
-
     db.add(new_project)
     db.commit()
     db.refresh(new_project)
@@ -71,13 +62,10 @@ def update_project(project_id: int, project: ProjectUpdate, db: Session = Depend
 @router.delete("/{project_id}")
 def delete_project(project_id: int, db: Session = Depends(get_db)):
     project = db.query(Project).filter(Project.id == project_id).first()
-
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-
     db.delete(project)
     db.commit()
-
     return {"message": "Project deleted successfully"}
 
 

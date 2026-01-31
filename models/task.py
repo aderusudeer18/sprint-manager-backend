@@ -11,7 +11,7 @@ Priority = ('Blocker', 'Critical', 'Major','Medium', 'Minor', 'Trivial')
 
 class Task(Base):
     __tablename__ = "task"
-    # __table_args__ = {'schema': 'public'}
+   
 
     id = Column(Integer, primary_key=True, index=True)
 

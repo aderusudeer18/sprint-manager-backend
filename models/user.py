@@ -20,3 +20,5 @@ class User(Base):
     is_admin=Column(Boolean, default=False)  # 0 for False, 1 for True
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    comments = relationship("Comment", back_populates="author")
