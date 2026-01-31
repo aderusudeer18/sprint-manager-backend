@@ -83,5 +83,21 @@ def add_users_to_project(project_id: int, data: AssignUsers, db: Session = Depen
             project.users.append(user)
 
     db.commit()
-    return {"message": "Projects added to user"}
+    return {"message": "Project added to user"}
 
+
+@router.post("/remove-users/{project_id}")
+def remove_users_from_project(project_id: int, data: AssignUsers, db: Session = Depends(get_db)):
+
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    users = db.query(User).filter(User.id.in_(data.user_ids)).all()
+    if not users:
+        raise HTTPException(status_code=404, detail="No valid users found") 
+    for user in users:
+        if user in project.users:
+            project.users.remove(user)
+
+    db.commit()
+    return {"message": "Project removed from user"}

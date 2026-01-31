@@ -38,16 +38,7 @@ def create_task(task: TaskCreate, db: Session = Depends(get_db)):\
         code=new_code  
 
     )
-    if not new_task.description:
-        try:
-            prompt=f"generate a description on how to do the {new_task.title } task in our project in points, make sure length of description is not more than 1000 characters"
-            request = PromptRequest(prompt=prompt)
-            result = send_task_to_gemini(request)
-            new_task.description = result.get("result", NO_DESCRIPTION_GENERATED)
-            new_task.created_at = datetime.datetime.now(datetime.timezone.utc)
-       
-        except Exception as e:
-            raise HTTPException(status_code=404, detail=f"Error generating description: {str(e)}")
+    
     new_task.created_at = datetime.datetime.now(datetime.timezone.utc)
     db.add(new_task)
     db.commit()
@@ -173,15 +164,6 @@ def update_task(task_id: int, task: TaskUpdate, db: Session = Depends(get_db)):
     for key, value in task.model_dump(exclude_unset=True).items():
         setattr(db_task, key, value)
 
-    if not db_task.description:
-        try:
-            prompt=f"generate a description on how to develop the {db_task.title } task in our project in points, make sure length of description is not more than 1000 characters"
-            request = PromptRequest(prompt=prompt)
-            result = send_task_to_gemini(request)
-            db_task.description = result.get("result", NO_DESCRIPTION_GENERATED)
-       
-        except Exception as e:
-            raise HTTPException(status_code=404, detail=f"Error generating description: {str(e)}")
     db_task.updated_at=  datetime.datetime.now(datetime.timezone.utc)
     db.commit()
     db.refresh(db_task)
