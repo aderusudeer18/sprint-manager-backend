@@ -25,13 +25,15 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://sprint-management-fe.vercel.app"],  # React / Next.js
+    allow_origins=[ "https://sprint-management-fe.vercel.app" , "http://localhost:3000" ],  # React / Next.js
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 # Create PostgreSQL tables
-Base.metadata.create_all(bind=engine)
+@app.on_event("startup")
+async def startup_event():
+    Base.metadata.create_all(bind=engine)
 
 
 # Include API Routes
