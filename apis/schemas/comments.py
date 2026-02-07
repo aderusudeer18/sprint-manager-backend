@@ -17,8 +17,9 @@ class CommentOut(CommentBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    # class Config:
+    #     orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 '''class CommentCreate(BaseModel):
     task_id: int
