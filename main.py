@@ -8,8 +8,7 @@ from apis.search_bar import router as search_router
 from apis.comments import router as comment_scetion
 from fastapi.middleware.cors import CORSMiddleware
 from apis.ai import router as ai_router
-
-
+from apis.search_by_name_mobile import router as member_search_router
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -20,12 +19,11 @@ load_dotenv()
 
 app = FastAPI(
     title="Sprint Manager API",
-    version="1.0.0",
-)
+    version="1.0.0",)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React / Next.js
+    allow_origins=["http://localhost:3000"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,4 +39,5 @@ app.include_router(user_router, prefix="/users", tags=["Users"])
 app.include_router(sprint_router, prefix="/sprints", tags=["Sprints"])
 app.include_router(ai_router,prefix="/ai",tags=["Ai"])
 app.include_router(search_router,prefix="/search_bar",tags=["Search"])
+app.include_router(member_search_router, prefix="/users/search", tags=["Member Search"])
 app.include_router(comment_scetion,prefix="/comment_scetion",tags=["comment_section"])

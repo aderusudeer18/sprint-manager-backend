@@ -18,12 +18,11 @@ NO_DESCRIPTION_GENERATED = "No description generated"
 TASK_NOT_FOUND = "Task not found"
 
 @router.post("/")
-def create_task(task: TaskCreate, db: Session = Depends(get_db)):\
+def create_task(task: TaskCreate, db: Session = Depends(get_db)):
 
     last_task = db.query(Task).order_by(Task.code.desc()).first()
     new_code = int(last_task.code) + 1 if last_task else 1001
 
-    # Create Task instance with code
     new_task = Task(
         work_type=task.work_type,
         title=task.title,
@@ -49,9 +48,8 @@ def create_task(task: TaskCreate, db: Session = Depends(get_db)):\
        
     }
 
-@router.get("/all") # Removed {project_id} because you are passing a List in the query
+@router.get("/all") 
 def get_all_tasks(
-    # Use Query() to handle list parameters in the URL correctly
     project_ids: List[int] = Query(...), 
     sprint_ids: Optional[List[int]] = Query(None), 
     user_ids: Optional[List[int]] = Query(None),
@@ -63,7 +61,7 @@ def get_all_tasks(
     parent_task: Optional[int] = None, 
     db: Session = Depends(get_db)
 ):
-    # 1. Use .in_() for lists instead of the Python 'in' keyword
+   
     query = db.query(Task).filter(Task.project_id.in_(project_ids))
 
     if sprint_ids:
@@ -72,7 +70,6 @@ def get_all_tasks(
     if user_ids:
         query = query.filter(Task.user_id.in_(user_ids))
 
-    # 2. Direct comparisons for single values
     if work_type:
         query = query.filter(Task.work_type == work_type)
 
@@ -107,8 +104,7 @@ def get_unassigned_tasks(
     story_points: Optional[int] = None, 
     description: Optional[str] = None,
     parent_task: Optional[int] = None, 
-    db: Session = Depends(get_db)
-):
+    db: Session = Depends(get_db)):
     # Base query restricted to the projects provided
     query = db.query(Task).filter(Task.project_id.in_(project_ids))
 

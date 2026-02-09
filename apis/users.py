@@ -13,31 +13,43 @@ router = APIRouter()
 # CREATE USER
 @router.post("/")
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-
-    existing_email = db.query(User).filter(User.email == user.email).first()
-    if existing_email:
-        # Use HTTPException so the frontend 'catch' block triggers
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email ID is already registered"
-        )
-
-    if user.mobile:
-        existing_mobile = db.query(User).filter(User.mobile == user.mobile).first()
-        if existing_mobile:
+    import traceback
+    
+    try:
+        existing_email = db.query(User).filter(User.email == user.email).first()
+        if existing_email:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Mobile number already registered"
+                detail="Email ID is already registered"
             )
+
+        if user.mobile:
+            existing_mobile = db.query(User).filter(User.mobile == user.mobile).first()
+            if existing_mobile:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Mobile number already registered"
+                )
+            
+        new_user = User(**user.model_dump())
+        new_user.organisation = user.email.split('@')[-1]
+        new_user.created_at = datetime.datetime.now(datetime.timezone.utc)
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
         
-    new_user = User(**user.model_dump())
-    new_user.organisation = user.email.split('@')[-1]
-    new_user.created_at = datetime.datetime.now(datetime.timezone.utc)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+        return {"User created successfully": new_user}
     
-    return {"User created successfully": new_user}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"❌ ERROR creating user: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database error: {str(e)}"
+        )
 
 
 @router.post("/valid")

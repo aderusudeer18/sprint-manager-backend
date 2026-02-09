@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List
 from datetime import datetime
+from pydantic import BaseModel, ConfigDict
 
 
 
@@ -17,8 +18,14 @@ class CommentOut(CommentBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+   
+
+class UserResponse(BaseModel):
+    id: int
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 '''class CommentCreate(BaseModel):
     task_id: int
