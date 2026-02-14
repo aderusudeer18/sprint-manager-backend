@@ -4,6 +4,7 @@ from database import get_db
 from models.project import Project
 from apis.schemas.project import AssignUsers, ProjectCreate, ProjectUpdate
 from models.user import User
+from apis.dependencies import get_current_user
 import datetime 
 
 router = APIRouter()
@@ -11,9 +12,34 @@ router = APIRouter()
 
 # CREATE PROJECT
 @router.post("/")
-def create_project(project_data: ProjectCreate, db: Session = Depends(get_db)):
+def create_project(
+    project_data: ProjectCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # 1. Validate: Does the user belong to this Organization?
+    # We check the UserOrganization association table
+    from models.user_organization import UserOrganization
+    membership = db.query(UserOrganization).filter(
+        UserOrganization.user_id == current_user.id,
+        UserOrganization.organization_id == project_data.organization_id
+    ).first()
+
+    if not membership:
+        raise HTTPException(
+            status_code=403, 
+            detail="Access Denied: You are not a member of this Organization."
+        )
+
+    # 2. Validate: Are the assigned users/manager also members? (Optional but strict)
+    # For MVP, checking the creator's permission is the critical step.
+    
     users_to_add = db.query(User).filter(User.id.in_(project_data.users)).all()
-    new_project = Project(title=project_data.title, manager_id = project_data.manager_id)
+    new_project = Project(
+        title=project_data.title, 
+        manager_id = project_data.manager_id,
+        organization_id = project_data.organization_id
+    )
     new_project.users = users_to_add
     new_project.created_at = datetime.datetime.now(datetime.timezone.utc)
     db.add(new_project)

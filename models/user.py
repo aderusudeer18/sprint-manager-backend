@@ -16,7 +16,15 @@ class User(Base):
     mobile = Column(String, nullable=True, unique=True)
     role=Column(String,index=True, nullable=True)
     location=Column(String,index=True, nullable=True)
-    organisation=Column(CITEXT,index=True, nullable=True, unique=True)
+    # organisation column removed in favor of relation
+    
+    # Relationships
+    owned_organizations = relationship("Organization", back_populates="owner")
+    organization_memberships = relationship("UserOrganization", back_populates="user")
+    
+    # Helper to get organizations
+    organizations = relationship("Organization", secondary="user_organizations", viewonly=True)
+    
     projects = relationship("Project", secondary=user_projects, back_populates="users")
     is_admin=Column(Boolean, default=False)  # 0 for False, 1 for True
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)

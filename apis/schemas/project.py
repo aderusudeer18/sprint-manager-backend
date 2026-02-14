@@ -7,6 +7,7 @@ class ProjectCreate(BaseModel):
     title: str
     users: list[int]
     manager_id: int
+    organization_id: int
     
 
 class ProjectUpdate(BaseModel):
