@@ -84,9 +84,11 @@ def validate_user(getuser: UserGet, db: Session = Depends(get_db)):
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    if getuser.password != user.password:
+    from core.security import verify_password
+    if not verify_password(getuser.password, user.password):
         raise HTTPException(status_code=404, detail="Please check your password")
+    # if getuser.password != user.password:
+    #     raise HTTPException(status_code=404, detail="Please check your password")
 
     return user
 
