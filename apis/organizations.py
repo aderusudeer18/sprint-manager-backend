@@ -21,7 +21,6 @@ def create_organization(
     Create a new organization.
     The creator becomes the 'owner' and an 'Admin' member.
     """
-    """
     # 1. Create Org
     new_org = Organization(
         name=org_in.name,
