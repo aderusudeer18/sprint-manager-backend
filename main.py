@@ -29,7 +29,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[ "https://sprint-management-fe.vercel.app" , "http://localhost:3000" ],  # React / Next.js
+    allow_origins=[ "https://sprintmangerui.vercel.app" , "http://localhost:3000", "*" ],  # React / Next.js
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
